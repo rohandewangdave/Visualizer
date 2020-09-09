@@ -1,0 +1,36 @@
+
+.nav-bar-list-item-button{
+    background-color:#0099ff;
+    border:none;
+    padding: 5px;
+    border-radius: 7%;
+}
+
+.nav-bar-list-item-button:hover{
+    background: #33ccff;
+}
+.nav-bar-list-item{
+    list-style: none;
+    display: inline-block;
+    margin-right: 10px;  
+    color:white; 
+}
+
+.nav-bar{
+    border-style:solid;
+    border-color:black;
+    background: #0099ff;
+    box-shadow: 2px 2px 2px 2px;
+}
+
+.menu-bar-div{
+    width: 50%;
+    margin:auto; 
+}
+
+.my-canvas{
+    margin: 5px;
+    border-style: solid;
+    border-color: black;
+
+}
