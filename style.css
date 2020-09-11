@@ -28,7 +28,7 @@
     margin:auto; 
 }
 
-.my-canvas{
+#my-canvas{
     margin: 5px;
     border-style: solid;
     border-color: black;
