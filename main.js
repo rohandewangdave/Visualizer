@@ -2,8 +2,10 @@ class Node{
     constructor(x,y){
         this.x = x;
         this.y= y;
-        this.isColored = false;
+        this.neighbours = []; //assigned in clockwise sense i.e. top , right , bottom , left
+        this.distance = 99999999;
     }
+    
 }
 
 class Grid{
@@ -22,13 +24,43 @@ class Grid{
 
         this.create_nodes();
     }
+
     create_nodes(){
         for(var i = 0; i < this.rows; i++){
             for(var j = 0; j < this.columns; j++){
-                this.nodes[i][j] = new Node(i*20,j*20);
+                this.nodes[i][j] = new Node(i*20,j*20); // hashing done here, (i,j) stores node with (x,y) = (i*20,j*20) therefore a node with (x,y) can be retrieved from nodes[x/20,y/20]
             }
-        }        
-    }//create node method
+        } 
+        this.assign_neighbours();       
+    }
+
+    assign_neighbours(){
+        var k =0;
+        for(var i = 0; i < this.rows; i++){
+            for(var j = 0; j < this.columns; j++){
+                if(i-1 >=0) // for neighbour above 
+                this.nodes[i][j].neighbours[k++] = this.nodes[i-1][j];
+
+                if(j+1 < this.columns) //for right neighbour 
+                this.nodes[i][j].neighbours[k++] = this.nodes[i][j+1];
+
+                if(i+1 < this.rows) //for bottom neighbour 
+                this.nodes[i][j].neighbours[k++] = this.nodes[i+1][j];
+
+                if(j-1 >= 0) // for left neighbour 
+                this.nodes[i][j].neighbours[k++] = this.nodes[i][j-1];
+            }
+        }
+    }
+
+    find_node(co_ordinates){ //finding node by hashing. Time complexity to find a node is now O(1)
+        return ;
+    }
+
+    set_node_property(co_ordnaites, property , value ){
+        if(property == "distance")
+        this.nodes[co_ordinates[0]/this.node_size][co_ordinates[1]/this.node_size].distance = value;
+    }
 }
 
 class Canvas{
@@ -65,6 +97,24 @@ class Canvas{
         console.log("mouse up @"+point); 
     }
 }
+
+class DijkstrasAlgorithm{ // any node pointer is a list of co_ordinates of a node that can be used to lookup the node in constant time 
+    constructor(canvas,start,end,obstacles){
+        this.canvas = canvas;
+        this.grid = this.canvas.grid;
+        this.startNodePointer = [start.x , start.y];
+        this.endNodePointer = [end.x , end.y];
+        this.obstacles = obstacles; //left for later
+        this.unvisited = this.grid.nodes;
+    }
+    
+    solve(){
+        this.currentPointer = this.startNodePointer;
+        this.grid.find_node(this.currentPointer).set_node_property("distance",0);
+        console.log(find_node(this.currentPointer).distance); 
+    }
+}
+
 function draw_grid(){
     grid = new Grid(1240,400,20);
     canvas = new Canvas(grid);
