@@ -3,7 +3,7 @@ class Node{
         this.x = x;
         this.y= y;
         this.neighbours = []; //assigned in clockwise sense i.e. top , right , bottom , left
-        this.distance = 99999999;
+        this.distance = 99999999; //infinity
     }
     
 }
@@ -25,6 +25,7 @@ class Grid{
         this.create_nodes();
     }
 
+    //populating nodes array with objects of type Node O(n)
     create_nodes(){
         for(var i = 0; i < this.rows; i++){
             for(var j = 0; j < this.columns; j++){
@@ -34,6 +35,7 @@ class Grid{
         this.assign_neighbours();       
     }
 
+    //assigning neighbours to each node as mentioned in the nodes class O(n)
     assign_neighbours(){
         var k =0;
         for(var i = 0; i < this.rows; i++){
@@ -57,12 +59,14 @@ class Grid{
         return ;
     }
 
+    //sets the said property of node with co_ordinates in constant time by using hashing 
     set_node_property(co_ordnaites, property , value ){
         if(property == "distance")
         this.nodes[co_ordinates[0]/this.node_size][co_ordinates[1]/this.node_size].distance = value;
     }
 }
 
+//front end related class
 class Canvas{
     constructor(grid){
         this.grid = grid;
