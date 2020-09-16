@@ -1,11 +1,13 @@
+colors = {"gray": "#808080" , "green":"#008000" , "red":"#FF0000" , "black":"#000000" , "background-gray":"#606060"};
+node_inputs = {"start": null , "end":null , "obstacles":[]}
 class Node{
-    constructor(x,y){
+    constructor(x,y,isObstacle){
         this.x = x;
         this.y= y;
         this.neighbours = []; //assigned in clockwise sense i.e. top , right , bottom , left
         this.distance = 99999999; //infinity
+        this.isObstacle =isObstacle;
     }
-    
 }
 
 class Grid{
@@ -21,121 +23,161 @@ class Grid{
         for(var i = 0; i < this.nodes.length;i++){
             this.nodes[i] = new Array(this.columns); //1240/20 = 62
         }
-
-        this.create_nodes();
-    }
-
-    //populating nodes array with objects of type Node O(n)
-    create_nodes(){
-        for(var i = 0; i < this.rows; i++){
-            for(var j = 0; j < this.columns; j++){
-                this.nodes[i][j] = new Node(i*20,j*20); // hashing done here, (i,j) stores node with (x,y) = (i*20,j*20) therefore a node with (x,y) can be retrieved from nodes[x/20,y/20]
-            }
-        } 
-        this.assign_neighbours();       
-    }
-
-    //assigning neighbours to each node as mentioned in the nodes class O(n)
-    assign_neighbours(){
-        var k =0;
-        for(var i = 0; i < this.rows; i++){
-            for(var j = 0; j < this.columns; j++){
-                if(i-1 >=0) // for neighbour above 
-                this.nodes[i][j].neighbours[k++] = this.nodes[i-1][j];
-
-                if(j+1 < this.columns) //for right neighbour 
-                this.nodes[i][j].neighbours[k++] = this.nodes[i][j+1];
-
-                if(i+1 < this.rows) //for bottom neighbour 
-                this.nodes[i][j].neighbours[k++] = this.nodes[i+1][j];
-
-                if(j-1 >= 0) // for left neighbour 
-                this.nodes[i][j].neighbours[k++] = this.nodes[i][j-1];
-            }
-        }
-    }
-
-    find_node(co_ordinates){ //finding node by hashing. Time complexity to find a node is now O(1)
-        return ;
     }
 
     //sets the said property of node with co_ordinates in constant time by using hashing 
-    set_node_property(co_ordnaites, property , value ){
+    set_node_property(co_ordinates, property , value ){
         if(property == "distance")
         this.nodes[co_ordinates[0]/this.node_size][co_ordinates[1]/this.node_size].distance = value;
     }
-}
 
-//front end related class
-class Canvas{
-    constructor(grid){
-        this.grid = grid;
-        this.c = document.getElementById("my-canvas");
-        this.ismouse=false;
-        console.log(this.c);
-        this.ctx = this.c.getContext("2d");
-        this.c.addEventListener("mousedown",  this.mousedown);
-        this.c.addEventListener("mousemove" ,this.mousemove);
-        this.c.addEventListener("mouseup" , this.mouseup);
-        this.nodes_to_color = [];
-    }
-
-    mouse_to_node(mouse_x,mouse_y){
-        return ([(mouse_x/this.grid.node_size)*this.grid.node_size,(mouse_y/this.grid.node_size)*this.grid.node_size]);         
-    }
-
-    mousedown(event){   
-        this.ismousedown=true; 
-        var point = this.mouse_to_node(event.clientX,event.clientY);
-        console.log("mouse down @"+point);                 
-    }
-
-    mousemove(event){
-        if(this.ismousedown)
-        console.log(this.mouse_to_node(event.clientX,event.clientY));
-    }
-
-    mouseup(event){
-        this.ismousedown=false;
-        var point = this.mouse_to_node(event.clientX,event.clientY);
-        console.log("mouse up @"+point); 
-    }
 }
 
 class DijkstrasAlgorithm{ // any node pointer is a list of co_ordinates of a node that can be used to lookup the node in constant time 
-    constructor(canvas,start,end,obstacles){
-        this.canvas = canvas;
-        this.grid = this.canvas.grid;
-        this.startNodePointer = [start.x , start.y];
-        this.endNodePointer = [end.x , end.y];
-        this.obstacles = obstacles; //left for later
-        this.unvisited = this.grid.nodes;
+    constructor(grid){
+        this.grid = grid;
+        this.obstacles = []; //stores points of obstacles
+        this.obstaclePointer = 0;
+        this.startNodePointer = [-1,-1]; //meaning no start node selected
+        this.endNodePointer = [-1,-1]; //meaning no end node selected
+        console.log("CONSTRUCtor");
+        console.log(this.obstacles);
+
     }
     
-    solve(){
-        this.currentPointer = this.startNodePointer;
-        this.grid.find_node(this.currentPointer).set_node_property("distance",0);
-        console.log(find_node(this.currentPointer).distance); 
+    better_includes(arr){
+        var copy = this.obstacles;
+        for(var i = 0; i < arr.length; i++){
+            if(JSON.stringify(arr[i]) == JSON.stringify(copy))
+            return true;
+        }
+        return false;
+    }
+
+    create_nodes(){
+        console.log(this.grid.rows);
+        console.log(this.grid.columns);
+        for(var i = 0; i < 20; i++){
+            for(var j = 0; j < 20; j++){
+                if(this.better_includes(this.obstacles,[i*20,j*20]))
+                this.grid.nodes[i][j] = new Node(i*20,j*20,true);
+            }
+        }
+        console.log(this.grid.nodes);
+    }
+
+    set_start_node(start_node_point){
+        this.startNodePointer = start_node_point; // stores co ordinates of start node 
+    }
+
+    set_end_node(end_node_point){
+        this.endNodePointer = end_node_point;
+    }
+
+    add_obstacle_node(obstacle_node_point){
+        this.obstacles[this.obstaclePointer++] = obstacle_node_point;
+    }
+
+    find_hashed_node(node_points){ //point is co ordinates of actual node and is returning the node
+        return this.grid.nodes[ parseInt(node_points[0]/20)][parseInt(node_points[1]/20)];
+    }
+    
+    solve(){ 
+        this.create_nodes();
+        //this.currentPointer = this.startNodePointer;
+        //this.grid.set_node_property(this.currentPointer,"distance",0);
     }
 }
 
 function draw_grid(){
-    grid = new Grid(1240,400,20);
-    canvas = new Canvas(grid);
+    //grid = new Grid(1240,400,20);
+    //DijkstrasSolver = new DijkstrasAlgorithm(grid);
+
+    canvas = document.getElementById("my-canvas");  //global variable 
+    ctx = canvas.getContext("2d");
+    canvas.addEventListener("mousedown", test_function);
 
     //for vertical lines
     for(i = 0 ; i < 1240; i+=20){
-        canvas.ctx.moveTo(i,0);
-        canvas.ctx.lineTo(i,400);
-        canvas.ctx.strokeStyle = "#808080";
-        canvas.ctx.stroke();
+        ctx.moveTo(i,0);
+        ctx.lineTo(i,400);
+        ctx.strokeStyle = colors["gray"];
+        ctx.stroke();
     }
 
     //for horizontal lines
     for(i = 0 ; i < 400; i+=20){
-        canvas.ctx.moveTo(0,i);
-        canvas.ctx.lineTo(1240,i);
-        canvas.ctx.strokeStyle = "#808080";
-        canvas.ctx.stroke();    
+        ctx.moveTo(0,i);
+        ctx.lineTo(1240,i);
+        ctx.strokeStyle = colors["gray"];
+        ctx.stroke();    
     }
+}
+
+function test_function(event){  //event handling function, called when mouse click inside canvas
+    var point = [parseInt(event.clientX/20)*20 , parseInt(event.clientY/20)*20];
+    var console_output =""; 
+    if(selecting_start){
+        if(DijkstrasSolver.startNodePointer == [-1,-1]){
+            DijkstrasSolver.set_start_node(point);
+            ctx.fillStyle = colors["green"];
+        }
+        else{
+            ctx.fillStyle = colors["background-gray"];
+            ctx.fillRect(DijkstrasSolver.startNodePointer[0] , DijkstrasSolver.startNodePointer[1] , 20 , 20);
+            DijkstrasSolver.set_start_node(point);
+            ctx.fillStyle = colors["green"];
+            ctx.fillRect(point[0],point[1],20,20);
+        }
+        console_output = ">Start Node Selected "+"("+DijkstrasSolver.startNodePointer+")";
+    }
+    else if(selecting_end){
+        if(DijkstrasSolver.endNodePointer == [-1,-1]){
+            DijkstrasSolver.set_end_node(point);
+            ctx.fillStyle = colors["red"];
+        }
+        else{
+            ctx.fillStyle = colors["background-gray"];
+            ctx.fillRect(DijkstrasSolver.endNodePointer[0] , DijkstrasSolver.endNodePointer[1] , 20 , 20);
+            DijkstrasSolver.set_end_node(point);
+            ctx.fillStyle = colors["red"];
+            ctx.fillRect(point[0],point[1],20,20);
+        }
+        console_output = ">End Node Selected "+"("+DijkstrasSolver.endNodePointer+")";
+    }
+    else if(selecting_obstacle){
+        ctx.fillStyle = colors["black"];
+        DijkstrasSolver.add_obstacle_node(point);
+        console_output = ">Obstacle Selected"+"("+point+")";
+    }
+    ctx.fillRect(point[0] , point[1] , 20 , 20);
+    document.getElementsByClassName("textbox")[0].value = console_output; 
+}
+
+function decide_point(str){ //onclick of any menu button 
+    switch(str){
+        case "start":
+            selecting_start = true;
+            selecting_end = false;
+            selecting_obstacle = false;
+            document.getElementsByClassName("textbox")[0].value = ">Selecting Start Point...";
+            break;
+        case "end":
+            selecting_end = true;
+            selecting_start = false;
+            selecting_obstacle = false;
+            document.getElementsByClassName("textbox")[0].value = ">Selecting End Point...";
+            break;
+        default:
+            selecting_obstacle = true;
+            selecting_start = false;
+            selecting_end = false;
+            document.getElementsByClassName("textbox")[0].value = ">Selecting Obstaecles...";
+            break;
+    }
+}
+
+function call_solve(){
+    //console.log("method called");
+    DijkstrasSolver.solve();
 }

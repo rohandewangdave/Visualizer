@@ -1,32 +1,26 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script src="main.js"></script>
+        <script src="new.js"></script>
         <link rel="stylesheet" href="style.css">
         <title>Path Finding Website</title>
     </head>
 
-    <body>
-    <div class="nav-bar-div">
-        <nav class="nav-bar">
-            <ul class="nav-bar-list">
-                <li class="nav-bar-list-item"><button class="nav-bar-list-item-button">Djkstras</button></li>
-                <li class="nav-bar-list-item"><button class="nav-bar-list-item-button">Breadth First Search</button></li>
-                <li class="nav-bar-list-item"><button class="nav-bar-list-item-button">A*</button></li>
-            </ul>
-        </nav>
-    </div>
-
+    <body onload = "draw_grid()">
+    
+    
+    <canvas id="my-canvas" width="1240" height="400"></canvas>
     <div class="menu-bar-div">
             <ul class="menu-bar">
-                <li class="nav-bar-list-item"><button class="nav-bar-list-item-button" onclick="draw_grid()">Initialize</button></li>
-                <li class="nav-bar-list-item"><button class="nav-bar-list-item-button">Start point</button></li>
-                <li class="nav-bar-list-item"><button class="nav-bar-list-item-button">End point</button></li>
-                <li class="nav-bar-list-item"><button class="nav-bar-list-item-button">Obstacle</button></li>
-                <li class="nav-bar-list-item"><button class="nav-bar-list-item-button">Visualize</button></li>
+                <li class="nav-bar-list-item"><button class="nav-bar-list-item-button" onclick="decide_point('start')">Start point</button></li>
+                <li class="nav-bar-list-item"><button class="nav-bar-list-item-button" onclick="decide_point('end')" >End point</button></li>
+                <li class="nav-bar-list-item"><button class="nav-bar-list-item-button" onclick="decide_point('obstacle')">Obstacle</button></li>
+                <li class="nav-bar-list-item"><button class="nav-bar-list-item-button" onclick="solve()">Visualize</button></li>
             </ul>
     </div>
 
-    <canvas id="my-canvas" width="1240" height="400"></canvas>
+    <div class="input">
+        <input class="textbox" type="text"/>
+    </div>
     </body>
 </html>
